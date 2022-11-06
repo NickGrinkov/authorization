@@ -1,9 +1,23 @@
-class authController {
+import User from "./models/User.js";
+import Role from "./models/Role.js";
+import bcrypt from 'bcryptjs';
+
+class AuthController {
     async registration(req, res) {
         try {
-            
+            const { username, password } = req.body;
+            const candidate = await User.findOne({ username });
+            if(candidate) {
+                res.status(400).json({ message: 'Пользователь с таким именем уже существует' });
+            }
+            const hashPassword = bcrypt.hashSync(password, 7);
+            const userRole = await Role.findOne({ value: 'USER' })
+            const user = new User({ username, password: hashPassword, roles: [userRole.value] });
+            await user.save();
+            return res.json({ message: 'Пользователь успешно зарегестрирован' })
         } catch (error) {
             console.log(error);
+            res.status(400).json({ message: 'Registration error' })
         }
     }
 
@@ -12,6 +26,7 @@ class authController {
             
         } catch (error) {
             console.log(error);
+            res.status(400).json({ message: 'Login error' })
         }
     }
 
@@ -24,4 +39,4 @@ class authController {
     }
 }
 
-export default new authController();
+export default new AuthController();
