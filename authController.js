@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import { secret } from "./config.js";
+import { json } from "express";
 
 const generateAccessToken = (id, roles) => {
     const payload = { id, roles };
@@ -54,7 +55,8 @@ class AuthController {
 
     async getUsers(req, res) {
         try {
-            res.json('Done')
+            const users = await User.find();
+            res.json({ users });
         } catch (error) {
             console.log(error);
         }
